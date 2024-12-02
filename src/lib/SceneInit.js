@@ -1,12 +1,23 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
+import RenderPixelatedPass from './RenderPixelatedPass';
+import PixelatePass from './PixelatePass';
+import { UnrealBloomPass } from 'three/examples/jsm/Addons.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { GreaterEqualDepth, Vector2 } from "three"
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
 export default class SceneInit {
   constructor(canvasId) {
     // NOTE: Core components to initialize Three.js app.
     this.scene = undefined;
     this.camera = undefined;
     this.renderer = undefined;
+  
+    this.composer = undefined;
 
     // NOTE: Camera params;
     this.fov = 45;
@@ -25,7 +36,14 @@ export default class SceneInit {
   }
 
   initialize() {
+    let screenResolution = new Vector2( window.innerWidth, window.innerHeight )
+    let renderResolution = screenResolution.clone().divideScalar( 6 )
+    renderResolution.x |= 3
+    renderResolution.y |= 3
+    let aspectRatio = screenResolution.x / screenResolution.y
+    
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0x0c0523);
     this.camera = new THREE.PerspectiveCamera(
       this.fov,
       window.innerWidth / window.innerHeight,
@@ -39,11 +57,26 @@ export default class SceneInit {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       // NOTE: Anti-aliasing smooths out the edges.
-      antialias: true,
+      antialias: false,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     // this.renderer.shadowMap.enabled = true;
     document.body.appendChild(this.renderer.domElement);
+
+    this.composer = new EffectComposer( this.renderer )
+    /*const renderPass = new RenderPass( this.scene, this.camera );
+    this.composer.addPass( renderPass );
+
+    const glitchPass = new GlitchPass();
+    this.composer.addPass( glitchPass );
+
+    const outputPass = new OutputPass();
+    this.composer.addPass( outputPass );*/
+    // composer.addPass( new RenderPass( scene, camera ) )
+    this.composer.addPass( new RenderPixelatedPass( renderResolution, this.scene, this.camera ) )
+    let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
+    this.composer.addPass( bloomPass )
+    this.composer.addPass( new PixelatePass( renderResolution ) )
 
     this.clock = new THREE.Clock();
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -80,16 +113,16 @@ export default class SceneInit {
     // NOTE: Window is implied.
     // requestAnimationFrame(this.animate.bind(this));
     window.requestAnimationFrame(this.animate.bind(this));
-    this.render();
+    this.composer.render();
     this.stats.update();
     this.controls.update();
   }
 
-  render() {
+  /*render() {
     // NOTE: Update uniform data on each render.
     // this.uniforms.u_time.value += this.clock.getDelta();
     this.renderer.render(this.scene, this.camera);
-  }
+  }*/
 
   onWindowResize() {
     this.camera.aspect = window.innerWidth / window.innerHeight;
