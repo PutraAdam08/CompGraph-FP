@@ -12,13 +12,7 @@ function App() {
     test.initialize();
     test.animate(); 
 
-    // const boxGeometry = new THREE.BoxGeometry(8, 8, 8);
-    // const boxMaterial = new THREE.MeshNormalMaterial();
-    // const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-    // test.scene.add(boxMesh);
-
-    
-
+    //gltf load
     let loadedModel;
     const glftLoader = new GLTFLoader();
     glftLoader.load('/MushollaTC.gltf', (gltfScene) => {
@@ -30,6 +24,7 @@ function App() {
       test.scene.add(gltfScene.scene);
     });/* */
 
+    //spotlight
     {
       let spotLight = new THREE.SpotLight( 0xffff00, 500, 100, Math.PI / 16, .02, 2 )
       // let spotLight = new THREE.SpotLight( 0xff8800, 1, 10, Math.PI / 16, 0, 2 )
@@ -56,6 +51,7 @@ function App() {
     test.scene.add(boxMesh);
     /*test.scene.add(planeMesh);/**/
 
+    //raycast
     const pointer = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
 

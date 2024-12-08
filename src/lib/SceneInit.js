@@ -9,29 +9,30 @@ import { Vector2 } from "three"
 
 export default class SceneInit {
   constructor(canvasId) {
-    // NOTE: Core components to initialize Three.js app.
+    //Core components to initialize Three.js app.
     this.scene = undefined;
     this.camera = undefined;
     this.renderer = undefined;
 
     this.composer = undefined;
 
-    // NOTE: Camera params;
+    //Camera params;
     this.fov = 45;
     this.nearPlane = 1;
     this.farPlane = 1000;
     this.canvasId = canvasId;
 
-    // NOTE: Additional components.
+    //Additional components.
     this.clock = undefined;
     this.stats = undefined;
     this.controls = undefined;
 
-    // NOTE: Lighting is basically required.
+    //Lighting is basically required.
     this.ambientLight = undefined;
     this.directionalLight = undefined;
   }
 
+  //Initialize Component
   initialize() {
     let screenResolution = new Vector2( window.innerWidth, window.innerHeight )
     let renderResolution = screenResolution.clone().divideScalar( 6 )
@@ -48,17 +49,18 @@ export default class SceneInit {
     this.camera.position.y = 9;
     this.camera.position.z = 36;
 
-    // NOTE: Specify a canvas which is already created in the HTML.
+    //Specify a canvas which is already created in the HTML.
     const canvas = document.getElementById(this.canvasId);
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      // NOTE: Anti-aliasing smooths out the edges.
+      //Anti-aliasing smooths out the edges.
       antialias: true,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     // this.renderer.shadowMap.enabled = true;
     document.body.appendChild(this.renderer.domElement);
 
+    //postprocessing 
     this.composer = new EffectComposer( this.renderer )
     this.composer.addPass( new RenderPixelatedPass( renderResolution, this.scene, this.camera ) )
     let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
@@ -70,24 +72,24 @@ export default class SceneInit {
     this.stats = Stats();
     document.body.appendChild(this.stats.dom);
 
-    // ambient light which is for the whole scene
+    //ambient light which is for the whole scene
     this.ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     this.scene.add(this.ambientLight);
 
-    // directional light - parallel sun rays
+    //directional light - parallel sun rays
     this.directionalLight = new THREE.DirectionalLight(0xfafafa, 0.5);
     this.directionalLight.castShadow = true;
     this.directionalLight.position.set(30, 20, 20);
     this.scene.add(this.directionalLight);
 
-    // if window resizes
+    //if window resizes
     window.addEventListener('resize', () => this.onWindowResize(), false);
 
-    // NOTE: Load space background.
+    //Load space background.
     // this.loader = new THREE.TextureLoader();
     // this.scene.background = this.loader.load('./pics/space.jpeg');
 
-    // NOTE: Declare uniforms to pass into glsl shaders.
+    //Declare uniforms to pass into glsl shaders.
     // this.uniforms = {
     //   u_time: { type: 'f', value: 1.0 },
     //   colorB: { type: 'vec3', value: new THREE.Color(0xfff000) },
