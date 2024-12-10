@@ -3,25 +3,56 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import './App.css'
 import SceneInit from "./lib/SceneInit.js"
+import { mix } from 'three/webgpu';
 
 
 
 function App() {
   useEffect(() => {
-    const test = new SceneInit('myThreeJsCanvas');
+    const test = new SceneInit('myThreeJsCanvas');    
+    const animateMixers = [];
+    test.animateMixers = animateMixers
+    //let clickableObjects = [];
     test.initialize();
-    test.animate(); 
+    test.animate();
+    //raycast
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
 
     //gltf load
-    let loadedModel;
+    var loadedModel1, loadedModel2,anim, mixer;
     const glftLoader = new GLTFLoader();
     glftLoader.load('/MushollaTC.gltf', (gltfScene) => {
-      loadedModel = gltfScene;
-      gltfScene.scene.rotation.y = Math.PI;
-      // console.log(loadedModel);
+    loadedModel1 = gltfScene;
+    gltfScene.scene.rotation.y = Math.PI;
+      //console.log(loadedModel1);
       
 
       test.scene.add(gltfScene.scene);
+    });/* */
+
+    glftLoader.load('/BushTest.gltf', (gltfScene) => {
+      loadedModel2 = gltfScene;
+      mixer = new THREE.AnimationMixer(gltfScene.scene);
+      //console.log(loadedModel2.animations);
+      anim = gltfScene.animations[0];
+      gltfScene.scene.rotation.y = -Math.PI/4;
+      gltfScene.scene.position.x = -3;
+      gltfScene.scene.position.z = 2;
+      gltfScene.scene.scale.set(3, 3, 3);
+      // console.log(loadedModel);
+      
+      // Play all animations
+      
+      const action = mixer.clipAction(gltfScene.animations[0]);
+      //action.play();
+      
+
+      // Add mixer to the update loop
+      animateMixers.push(mixer);
+      test.scene.add(gltfScene.scene);
+
     });/* */
 
     //spotlight
@@ -36,7 +67,6 @@ function App() {
       test.scene.add( spotLight )
       // spotLight.shadow.radius = 0
     }/** */
-
     
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const boxMaterial = new THREE.MeshStandardMaterial();
@@ -51,24 +81,24 @@ function App() {
     test.scene.add(boxMesh);
     /*test.scene.add(planeMesh);/**/
 
-    //raycast
-    const pointer = new THREE.Vector2();
-    const raycaster = new THREE.Raycaster();
 
-    const onMouseMove = (event) => {
-      // (-1 to +1) for both components
-      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    const onMouseClick = (event) => {
+      // Convert mouse position to normalized device coordinates (-1 to +1)
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-      raycaster.setFromCamera(pointer, test.camera);
-      const intersects = raycaster.intersectObjects(test.scene.children);
+      // Perform raycasting
+      raycaster.setFromCamera(mouse, test.camera);
+      const intersects = raycaster.intersectObjects(test.scene.children, true);
+        //console.log(loadedModel2);
+        const action = mixer.clipAction(anim);
+        action.loop = THREE.LoopOnce; // Resume animation
+        action.play();
+        action.reset();
+    };//
 
-      if (intersects.length > 0) {
-        //intersects[0].object.material.color.set(0xff0000);
-      }
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
+// Listen for mouse click
+window.addEventListener('click', onMouseClick, false);
   }, [])
 
   return (

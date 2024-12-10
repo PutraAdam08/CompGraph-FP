@@ -21,6 +21,7 @@ export default class SceneInit {
     this.nearPlane = 1;
     this.farPlane = 1000;
     this.canvasId = canvasId;
+    this.animateMixers = undefined;
 
     //Additional components.
     this.clock = undefined;
@@ -101,6 +102,8 @@ export default class SceneInit {
     // NOTE: Window is implied.
     // requestAnimationFrame(this.animate.bind(this));
     window.requestAnimationFrame(this.animate.bind(this));
+    const delta = this.clock.getDelta();
+    this.animateMixers.forEach((mixer) => mixer.update(delta));
     this.composer.render();
     this.stats.update();
     this.controls.update();
