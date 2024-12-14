@@ -32,25 +32,25 @@ function App() {
       test.scene.add(gltfScene.scene);
     });/* */
 
-    glftLoader.load('/BushTest.gltf', (gltfScene) => {
+    glftLoader.load('/bush.gltf', (gltfScene) => {
       loadedModel2 = gltfScene;
       mixer = new THREE.AnimationMixer(gltfScene.scene);
       //console.log(loadedModel2.animations);
-      anim = gltfScene.animations[0];
+      anim = gltfScene.animations[0]; //Get animation from model
       gltfScene.scene.rotation.y = -Math.PI/4;
       gltfScene.scene.position.x = -3;
       gltfScene.scene.position.z = 2;
-      gltfScene.scene.scale.set(3, 3, 3);
+      gltfScene.scene.scale.set(2, 2, 2);
       // console.log(loadedModel);
       
       // Play all animations
       
-      const action = mixer.clipAction(gltfScene.animations[0]);
+      const action = mixer.clipAction(gltfScene.animations[0]); //Get the animation action
       //action.play();
       
 
       // Add mixer to the update loop
-      animateMixers.push(mixer);
+      animateMixers.push(mixer); // Push the animation to the mixer
       test.scene.add(gltfScene.scene);
 
     });/* */
@@ -68,7 +68,7 @@ function App() {
       // spotLight.shadow.radius = 0
     }/** */
     
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    /*const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const boxMaterial = new THREE.MeshStandardMaterial();
     const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
     boxMesh.translateX(5);
@@ -76,12 +76,12 @@ function App() {
     boxMesh.translateZ(4);
     const planeGeometry = new THREE.PlaneGeometry(32, 32);
     const planeMaterial = new THREE.MeshStandardMaterial();
-    const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)/*/* */
+    const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)/*/
 
-    test.scene.add(boxMesh);
-    /*test.scene.add(planeMesh);/**/
+    //test.scene.add(boxMesh);
+    //test.scene.add(planeMesh);/**/
 
-
+    //For Interactivity
     const onMouseClick = (event) => {
       // Convert mouse position to normalized device coordinates (-1 to +1)
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
